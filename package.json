@@ -1,0 +1,20 @@
+{
+  "name": "pollens",
+  "version": "1.0.0",
+  "description": "2026 지방선거 공약 비교 Claude Code 스킬",
+  "scripts": {
+    "collect": "npx ts-node scripts/collect.ts",
+    "explore": "npx ts-node scripts/explore.ts",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "ts-node": "^10.9.0",
+    "vitest": "^1.6.0"
+  }
+}
