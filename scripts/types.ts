@@ -4,10 +4,11 @@ export type ElectionType = '도지사' | '시장' | '도의원' | '시의원' | 
 
 export interface ScraperConfig {
   electionType: ElectionType;
-  /** data/<electionType>/<region>/ 경로에 사용 */
+  regionCode: string;
   region: string;
-  /** 선관위 사이트에서 필터링할 선거구명 */
   district: string;
+  cityText?: string;
+  districtText?: string;
 }
 
 export interface CandidateRef {

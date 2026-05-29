@@ -12,11 +12,11 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 
 /** 동탄5동 기준 선거 목록 */
 const DONGTAN5_CONFIGS: ScraperConfig[] = [
-  { electionType: '도지사',  region: '경기도',  district: '경기도' },
-  { electionType: '시장',    region: '화성시',  district: '화성시' },
-  { electionType: '도의원',  region: '경기도',  district: '화성시제3선거구' },
-  { electionType: '시의원',  region: '화성시',  district: '화성시다선거구' },
-  { electionType: '교육감',  region: '경기도',  district: '경기도' },
+  { electionType: '도지사',  regionCode: '4100', region: '경기도', district: '경기도' },
+  { electionType: '시장',    regionCode: '4100', region: '화성시', district: '화성시',             cityText: '화성시' },
+  { electionType: '도의원',  regionCode: '4100', region: '경기도', district: '화성시제3선거구',   cityText: '화성시동탄구', districtText: '화성시제3선거구' },
+  { electionType: '시의원',  regionCode: '4100', region: '화성시', district: '화성시다선거구',   cityText: '화성시동탄구', districtText: '화성시다선거구' },
+  { electionType: '교육감',  regionCode: '4100', region: '경기도', district: '경기도' },
 ];
 
 async function runScraper(config: ScraperConfig): Promise<CandidateMeta[]> {
