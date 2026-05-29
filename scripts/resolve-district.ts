@@ -70,15 +70,37 @@ export async function resolveDistrictByAddress(
     await page.waitForURL('**/popup_search_sg_emd_req.xhtml', { timeout: 15_000 });
     await page.waitForSelector('ul.list li', { timeout: 10_000 });
 
+    // 시도별로 결과 항목을 찾아 매칭 — 동일한 읍면동 이름이 여러 시도에 존재할 수 있음
+    const allItems = await page.$$('ul.list li');
+    let targetItem = null;
+    for (const item of allItems) {
+      const sidoText = await item.$eval(
+        'div.zone_tit div.path p:nth-child(1)',
+        (el) => el.textContent?.trim() ?? ''
+      ).catch(() => '');
+      if (sidoText === sido) {
+        targetItem = item;
+        break;
+      }
+    }
+    if (!targetItem) {
+      const found = await Promise.all(
+        allItems.map((item) =>
+          item.$eval('div.zone_tit div.path p:nth-child(1)', (el) => el.textContent?.trim() ?? '').catch(() => '')
+        )
+      );
+      throw new Error(`${sido}의 "${emd}" 검색 결과를 찾을 수 없습니다. 실제 결과: ${found.join(', ')}`);
+    }
+
     // zone_tit > .path > p 순서: [0]=시도, [1]=구/시군, [2]=동
-    const districtCity = await page.$eval(
-      'ul.list li div.zone_tit div.path p:nth-child(2)',
+    const districtCity = await targetItem.$eval(
+      'div.zone_tit div.path p:nth-child(2)',
       (el) => el.textContent?.trim() ?? ''
     );
 
     // zone_con li(헤더 제외)에서 선거구 정보 추출 — CSS hide여도 DOM에 존재하므로 접근 가능
-    const rows = await page.$$eval(
-      'ul.list li ul.zone_con li:not(.th)',
+    const rows = await targetItem.$$eval(
+      'ul.zone_con li:not(.th)',
       (lis) =>
         lis.map((li) => {
           const zone = li.querySelector('div.zone');
