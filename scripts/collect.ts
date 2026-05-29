@@ -8,6 +8,32 @@ import { scrapeMunicipal } from './scrapers/municipal';
 import { scrapeEducation } from './scrapers/education';
 import type { ElectionType, ScraperConfig, CandidateMeta } from './types';
 
+export const REGION_CODES: Record<string, string> = {
+  '서울특별시': '1100',
+  '부산광역시': '2600',
+  '대구광역시': '2700',
+  '인천광역시': '2800',
+  '광주광역시': '2900',
+  '대전광역시': '3000',
+  '울산광역시': '3100',
+  '세종특별자치시': '3600',
+  '경기도': '4100',
+  '강원특별자치도': '4200',
+  '충청북도': '4300',
+  '충청남도': '4400',
+  '전북특별자치도': '4500',
+  '전라남도': '4600',
+  '경상북도': '4700',
+  '경상남도': '4800',
+  '제주특별자치도': '5000',
+};
+
+export function parseConfigJson(json: string): ScraperConfig[] {
+  const parsed = JSON.parse(json);
+  if (!Array.isArray(parsed)) throw new Error('--config-json 값은 배열이어야 합니다');
+  return parsed as ScraperConfig[];
+}
+
 const DATA_DIR = path.join(process.cwd(), 'data');
 
 /** 동탄5동 기준 선거 목록 */
@@ -33,17 +59,35 @@ async function runScraper(config: ScraperConfig): Promise<CandidateMeta[]> {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+
+  const configJsonIdx = args.indexOf('--config-json');
   const typeIdx = args.indexOf('--type');
-  const typeArg = typeIdx !== -1 ? (args[typeIdx + 1] as ElectionType) : undefined;
 
-  const configs = typeArg
-    ? DONGTAN5_CONFIGS.filter((c) => c.electionType === typeArg)
-    : DONGTAN5_CONFIGS;
+  let configs: ScraperConfig[];
 
-  if (configs.length === 0) {
-    console.error(`오류: 알 수 없는 선거 유형 "${typeArg}"`);
-    console.error(`가능한 값: ${DONGTAN5_CONFIGS.map((c) => c.electionType).join(', ')}`);
-    process.exit(1);
+  if (configJsonIdx !== -1) {
+    const configJsonArg = args[configJsonIdx + 1];
+    if (!configJsonArg) {
+      console.error('오류: --config-json 뒤에 JSON 배열을 입력해주세요');
+      process.exit(1);
+    }
+    try {
+      configs = parseConfigJson(configJsonArg);
+    } catch (err) {
+      console.error('오류: --config-json 파싱 실패:', (err as Error).message);
+      process.exit(1);
+    }
+  } else {
+    const typeArg = typeIdx !== -1 ? (args[typeIdx + 1] as ElectionType) : undefined;
+    configs = typeArg
+      ? DONGTAN5_CONFIGS.filter((c) => c.electionType === typeArg)
+      : DONGTAN5_CONFIGS;
+
+    if (configs.length === 0) {
+      console.error(`오류: 알 수 없는 선거 유형 "${typeArg}"`);
+      console.error(`가능한 값: ${DONGTAN5_CONFIGS.map((c) => c.electionType).join(', ')}`);
+      process.exit(1);
+    }
   }
 
   console.log(`\n=== PolLens 데이터 수집 시작 ===`);
