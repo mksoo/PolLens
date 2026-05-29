@@ -56,9 +56,27 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 후보를 `ballotNumber` 오름차순으로 정렬한다.
 
-각 후보에 대해:
+### Step 3a: 읽기 모드 선택
+
+다음을 출력하고 사용자 선택을 기다린다:
+
+```
+공보(선거공보물)도 함께 읽을까요?
+1. 5대공약만  — 후보당 PDF 1개, 빠름
+2. 공보 포함  — 후보당 PDF 2개, 이미지 PDF 전체 읽기
+              (후보 1인당 약 20~40페이지 추가 소모)
+```
+
+### Step 3b: 후보별 PDF 읽기
+
+**1번(5대공약만) 선택 시** — 각 후보에 대해:
 - `pdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다. 공약 내용을 해석한다.
-- `pdfPath`가 없고 `pbinfoPdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pbinfoPdfPath>` 경로의 PDF를 Read 도구로 읽는다. 이미지 기반 PDF이므로 텍스트 추출이 어려울 수 있다. 읽을 수 없으면 공약 셀에 `(선거공보 링크 참조)` 표시.
+- `pdfPath`가 없고 `pbinfoPdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pbinfoPdfPath>` 경로의 PDF를 Read 도구로 읽는다 (fallback).
+- 둘 다 없으면: 공약 셀에 `(공약 파일 없음)` 표시.
+
+**2번(공보 포함) 선택 시** — 각 후보에 대해:
+- `pdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다. 공약 내용을 해석한다.
+- `pbinfoPdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pbinfoPdfPath>` 경로의 공보 PDF를 Read 도구로 읽는다. 10페이지 이하이면 한 번에 읽고, 초과이면 20페이지씩 분할해 전체를 읽는다. 읽기에 실패하면 공약 셀에 `(공보 읽기 실패)` 표시.
 - 아무 PDF도 없으면: 공약 셀에 `(공약 파일 없음)` 표시.
 
 ---
