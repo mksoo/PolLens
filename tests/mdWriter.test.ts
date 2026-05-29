@@ -3,63 +3,22 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { candidateToMd, saveCandidateMd } from '../scripts/mdWriter';
-import type { Candidate } from '../scripts/types';
+import { saveRawCandidate } from '../scripts/mdWriter';
+import type { RawCandidate } from '../scripts/types';
 
-const MOCK_CANDIDATE: Candidate = {
+const MOCK_CANDIDATE: RawCandidate = {
   name: '추미애',
   ballotNumber: 1,
   party: '더불어민주당',
   electionType: '도지사',
   region: '경기도',
   district: '경기도',
+  pdfUrl: 'https://cdn.nec.go.kr/test.pdf',
+  rawText: '경기도를 더 살기 좋은 곳으로 만들겠습니다.',
   collectedAt: '2026-05-28T10:00:00.000Z',
-  pledges: [
-    {
-      rank: 1,
-      title: '수도권 30분 출근 대전환',
-      goal: ['광역교통망 구축'],
-      method: ['GTX 지체 없는 개통 추진'],
-      period: ['2026년~2030년 추진'],
-      budget: ['추가경정예산 편성을 통해 추진'],
-    },
-  ],
 };
 
-describe('candidateToMd', () => {
-  it('제목 줄에 이름, 선거유형, 지역을 포함한다', () => {
-    const md = candidateToMd(MOCK_CANDIDATE);
-    expect(md).toContain('# 추미애 — 도지사 · 경기도');
-  });
-
-  it('기호번호, 정당, 수집일을 메타 줄에 포함한다', () => {
-    const md = candidateToMd(MOCK_CANDIDATE);
-    expect(md).toContain('기호: 1');
-    expect(md).toContain('더불어민주당');
-    expect(md).toContain('2026-05-28T10:00:00.000Z');
-  });
-
-  it('공약 제목을 포함한다', () => {
-    const md = candidateToMd(MOCK_CANDIDATE);
-    expect(md).toContain('### 공약 1: 수도권 30분 출근 대전환');
-  });
-
-  it('목표 항목을 - 리스트로 변환한다', () => {
-    const md = candidateToMd(MOCK_CANDIDATE);
-    expect(md).toContain('- 광역교통망 구축');
-  });
-
-  it('항목이 없으면 (정보 없음)을 표시한다', () => {
-    const candidate: Candidate = {
-      ...MOCK_CANDIDATE,
-      pledges: [{ rank: 1, title: '테스트', goal: [], method: [], period: [], budget: [] }],
-    };
-    const md = candidateToMd(candidate);
-    expect(md).toContain('- (정보 없음)');
-  });
-});
-
-describe('saveCandidateMd', () => {
+describe('saveRawCandidate', () => {
   let tmpDir: string;
 
   beforeEach(() => {
@@ -70,18 +29,50 @@ describe('saveCandidateMd', () => {
     fs.rmSync(tmpDir, { recursive: true });
   });
 
-  it('올바른 경로에 파일을 생성한다', () => {
-    saveCandidateMd(MOCK_CANDIDATE, tmpDir);
-    const expectedPath = path.join(tmpDir, '도지사', '경기도', '추미애.md');
+  it('올바른 경로에 .txt 파일을 생성한다', () => {
+    saveRawCandidate(MOCK_CANDIDATE, tmpDir);
+    const expectedPath = path.join(tmpDir, '도지사', '경기도', '추미애.txt');
     expect(fs.existsSync(expectedPath)).toBe(true);
   });
 
-  it('저장된 파일에 후보자 이름이 포함된다', () => {
-    saveCandidateMd(MOCK_CANDIDATE, tmpDir);
+  it('저장된 파일에 이름, 기호, 정당이 포함된다', () => {
+    saveRawCandidate(MOCK_CANDIDATE, tmpDir);
     const content = fs.readFileSync(
-      path.join(tmpDir, '도지사', '경기도', '추미애.md'),
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
       'utf-8'
     );
-    expect(content).toContain('# 추미애');
+    expect(content).toContain('이름: 추미애');
+    expect(content).toContain('기호: 1');
+    expect(content).toContain('정당: 더불어민주당');
+  });
+
+  it('rawText가 파일에 포함된다', () => {
+    saveRawCandidate(MOCK_CANDIDATE, tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
+      'utf-8'
+    );
+    expect(content).toContain('경기도를 더 살기 좋은 곳으로 만들겠습니다.');
+  });
+
+  it('rawText가 비어있으면 안내 메시지를 표시한다', () => {
+    saveRawCandidate({ ...MOCK_CANDIDATE, rawText: '' }, tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
+      'utf-8'
+    );
+    expect(content).toContain('PDF 텍스트 추출 불가');
+  });
+
+  it('pbinfoUrl이 있으면 선거공보PDF 링크를 포함한다', () => {
+    saveRawCandidate(
+      { ...MOCK_CANDIDATE, pbinfoUrl: 'https://cdn.nec.go.kr/pbinfo.pdf' },
+      tmpDir
+    );
+    const content = fs.readFileSync(
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
+      'utf-8'
+    );
+    expect(content).toContain('선거공보PDF: https://cdn.nec.go.kr/pbinfo.pdf');
   });
 });
