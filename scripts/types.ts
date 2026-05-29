@@ -14,28 +14,31 @@ export interface CandidateRef {
   name: string;
   ballotNumber: number;
   party: string;
-  /** 5대공약 텍스트 PDF URL (P5_PRMS_PUB). 없으면 undefined — 이미지 PDF만 존재 */
+  /** P5_PRMS_PUB 텍스트 PDF URL. 없으면 undefined — 이미지 PDF만 존재 */
   pdfUrl?: string;
   /** 선거공보 이미지 PDF URL (유저 직접 열람용) */
   pbinfoUrl?: string;
 }
 
-export interface RawCandidate {
+export interface CandidateMeta {
   name: string;
   ballotNumber: number;
   party: string;
   electionType: ElectionType;
   region: string;
   district: string;
-  /** 5대공약 텍스트 PDF URL. 없으면 undefined */
+  /** 프로젝트 루트 기준 상대 경로 (P5_PRMS_PUB 텍스트 PDF) */
+  pdfPath?: string;
+  /** 프로젝트 루트 기준 상대 경로 (PBINFO 선거공보 이미지 PDF) */
+  pbinfoPdfPath?: string;
+  /** 원본 CDN URL (직접 열람용) */
   pdfUrl?: string;
   pbinfoUrl?: string;
-  /** pdf-parse로 추출한 원문 텍스트 (파싱 실패 시 빈 문자열) */
-  rawText: string;
   collectedAt: string;
 }
 
 export interface CacheMeta {
-  collectedAt: string; // ISO8601
+  collectedAt: string;
   elections: ElectionType[];
+  candidates: CandidateMeta[];
 }
