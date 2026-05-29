@@ -53,7 +53,7 @@ export async function resolveDistrictByAddress(
     throw new Error(`알 수 없는 시도: "${sido}". 가능한 값: ${Object.keys(REGION_CODES).join(', ')}`);
   }
 
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
   try {
     const context = await browser.newContext({
       viewport: { width: 1280, height: 900 },
