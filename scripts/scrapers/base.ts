@@ -1,5 +1,7 @@
 // scripts/scrapers/base.ts
 import { chromium, type Browser, type Page } from 'playwright';
+import * as fs from 'fs';
+import * as path from 'path';
 import type { CandidateRef } from '../types';
 
 export const LISTING_URL =
@@ -125,19 +127,15 @@ export async function extractCandidateRefs(page: Page): Promise<CandidateRef[]> 
 }
 
 /**
- * CDN PDF를 직접 다운로드하고 텍스트를 추출한다.
- * pdf-parse 라이브러리를 사용한다.
+ * CDN에서 PDF를 다운로드해 destPath에 바이너리 그대로 저장한다.
+ * 중간 디렉토리가 없으면 자동 생성한다.
  */
-export async function downloadPdfText(pdfUrl: string): Promise<string> {
+export async function downloadPdf(pdfUrl: string, destPath: string): Promise<void> {
   const response = await fetch(pdfUrl);
   if (!response.ok) {
     throw new Error(`PDF 다운로드 실패: ${response.status} ${pdfUrl}`);
   }
-  const arrayBuf = await response.arrayBuffer();
-  const buffer = Buffer.from(arrayBuf);
-
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse: (buf: Buffer) => Promise<{ text: string }> = require('pdf-parse');
-  const data = await pdfParse(buffer);
-  return data.text;
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  fs.writeFileSync(destPath, buffer);
 }
