@@ -1,3 +1,4 @@
+// scripts/collect.ts
 import * as path from 'path';
 import { updateMeta } from './cache';
 import { scrapeGovernor } from './scrapers/governor';
@@ -5,7 +6,7 @@ import { scrapeMayor } from './scrapers/mayor';
 import { scrapeProvincial } from './scrapers/provincial';
 import { scrapeMunicipal } from './scrapers/municipal';
 import { scrapeEducation } from './scrapers/education';
-import type { ElectionType, ScraperConfig } from './types';
+import type { ElectionType, ScraperConfig, CandidateMeta } from './types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 
@@ -18,7 +19,7 @@ const DONGTAN5_CONFIGS: ScraperConfig[] = [
   { electionType: '교육감',  region: '경기도',  district: '경기도' },
 ];
 
-async function runScraper(config: ScraperConfig): Promise<void> {
+async function runScraper(config: ScraperConfig): Promise<CandidateMeta[]> {
   switch (config.electionType) {
     case '도지사':  return scrapeGovernor(config, DATA_DIR);
     case '시장':    return scrapeMayor(config, DATA_DIR);
@@ -50,12 +51,14 @@ async function main(): Promise<void> {
 
   const succeeded: ElectionType[] = [];
   const failed: ElectionType[] = [];
+  const allCandidates: CandidateMeta[] = [];
 
   for (const config of configs) {
     console.log(`\n[${config.electionType}] ${config.district} 수집 중...`);
     try {
-      await runScraper(config);
-      console.log(`[${config.electionType}] ✓ 완료`);
+      const candidates = await runScraper(config);
+      allCandidates.push(...candidates);
+      console.log(`[${config.electionType}] ✓ 완료 (${candidates.length}명)`);
       succeeded.push(config.electionType);
     } catch (err) {
       console.error(`[${config.electionType}] ✗ 실패:`, err);
@@ -64,11 +67,11 @@ async function main(): Promise<void> {
   }
 
   if (succeeded.length > 0) {
-    updateMeta(DATA_DIR, succeeded);
+    updateMeta(DATA_DIR, succeeded, allCandidates);
   }
 
   console.log(`\n=== 수집 완료 ===`);
-  console.log(`성공: ${succeeded.join(', ') || '없음'}`);
+  console.log(`성공: ${succeeded.join(', ') || '없음'} (총 ${allCandidates.length}명)`);
   if (failed.length > 0) {
     console.log(`실패: ${failed.join(', ')}`);
     process.exit(1);
