@@ -14,8 +14,8 @@ export interface CandidateRef {
   name: string;
   ballotNumber: number;
   party: string;
-  /** 5대공약 PDF URL (텍스트 추출용, 없으면 선거공보 URL) */
-  pdfUrl: string;
+  /** 5대공약 텍스트 PDF URL (P5_PRMS_PUB). 없으면 undefined — 이미지 PDF만 존재 */
+  pdfUrl?: string;
   /** 선거공보 이미지 PDF URL (유저 직접 열람용) */
   pbinfoUrl?: string;
 }
@@ -27,7 +27,8 @@ export interface RawCandidate {
   electionType: ElectionType;
   region: string;
   district: string;
-  pdfUrl: string;
+  /** 5대공약 텍스트 PDF URL. 없으면 undefined */
+  pdfUrl?: string;
   pbinfoUrl?: string;
   /** pdf-parse로 추출한 원문 텍스트 (파싱 실패 시 빈 문자열) */
   rawText: string;

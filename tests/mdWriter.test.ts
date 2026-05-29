@@ -64,6 +64,29 @@ describe('saveRawCandidate', () => {
     expect(content).toContain('PDF 텍스트 추출 불가');
   });
 
+  it('pdfUrl이 있으면 공약PDF 링크를 포함한다', () => {
+    saveRawCandidate(MOCK_CANDIDATE, tmpDir);
+    const content = fs.readFileSync(
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
+      'utf-8'
+    );
+    expect(content).toContain('공약PDF: https://cdn.nec.go.kr/test.pdf');
+  });
+
+  it('pdfUrl이 없으면 공약PDF 줄을 생략하고 안내 메시지를 표시한다', () => {
+    saveRawCandidate(
+      { ...MOCK_CANDIDATE, pdfUrl: undefined, rawText: '', pbinfoUrl: 'https://cdn.nec.go.kr/pbinfo.pdf' },
+      tmpDir
+    );
+    const content = fs.readFileSync(
+      path.join(tmpDir, '도지사', '경기도', '추미애.txt'),
+      'utf-8'
+    );
+    expect(content).not.toContain('공약PDF:');
+    expect(content).toContain('선거공보PDF: https://cdn.nec.go.kr/pbinfo.pdf');
+    expect(content).toContain('PDF 텍스트 추출 불가');
+  });
+
   it('pbinfoUrl이 있으면 선거공보PDF 링크를 포함한다', () => {
     saveRawCandidate(
       { ...MOCK_CANDIDATE, pbinfoUrl: 'https://cdn.nec.go.kr/pbinfo.pdf' },

@@ -13,7 +13,7 @@ export function saveRawCandidate(candidate: RawCandidate, dataDir: string): void
     `기호: ${candidate.ballotNumber}`,
     `정당: ${candidate.party}`,
     `선거: ${candidate.electionType} / ${candidate.district}`,
-    `공약PDF: ${candidate.pdfUrl}`,
+    ...(candidate.pdfUrl ? [`공약PDF: ${candidate.pdfUrl}`] : []),
     ...(candidate.pbinfoUrl ? [`선거공보PDF: ${candidate.pbinfoUrl}`] : []),
     `수집일: ${candidate.collectedAt}`,
     '',

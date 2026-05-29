@@ -114,14 +114,11 @@ export async function extractCandidateRefs(page: Page): Promise<CandidateRef[]> 
       const party = card.querySelector('.info ul li')?.textContent?.trim() ?? '';
 
       const links = Array.from(card.querySelectorAll('a.btn_down.cdn')) as HTMLAnchorElement[];
+      // P5_PRMS_PUB 링크만 텍스트 추출용으로 사용. PBINFO(이미지 PDF)는 fallback 금지
+      const pdfUrl = links.find((a) => a.href.includes('P5_PRMS_PUB'))?.href;
       const pbinfoUrl = links.find((a) => a.href.includes('PBINFO'))?.href;
-      // 5대공약 PDF 우선, 없으면 선거공보 PDF
-      const pdfUrl =
-        (links.find((a) => a.href.includes('P5_PRMS_PUB')) ??
-          links.find((a) => a.href.includes('PBINFO')))
-          ?.href ?? '';
 
-      if (!name || !pdfUrl) return [];
+      if (!name) return [];
       return [{ name, ballotNumber, party, pdfUrl, pbinfoUrl }];
     });
   });

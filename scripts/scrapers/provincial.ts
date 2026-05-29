@@ -19,10 +19,12 @@ export async function scrapeProvincial(config: ScraperConfig, dataDir: string): 
     for (const ref of refs) {
       console.log(`  수집 중: 기호${ref.ballotNumber} ${ref.name} (${ref.party})`);
       let rawText = '';
-      try {
-        rawText = await downloadPdfText(ref.pdfUrl);
-      } catch (e) {
-        console.log(`    PDF 추출 실패: ${(e as Error).message.slice(0, 80)}`);
+      if (ref.pdfUrl) {
+        try {
+          rawText = await downloadPdfText(ref.pdfUrl);
+        } catch (e) {
+          console.log(`    PDF 추출 실패: ${(e as Error).message.slice(0, 80)}`);
+        }
       }
       saveRawCandidate({
         name: ref.name, ballotNumber: ref.ballotNumber, party: ref.party,
