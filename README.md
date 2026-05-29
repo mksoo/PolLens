@@ -13,10 +13,12 @@
 
 | 분류 | 기술 |
 |------|------|
-| 스크래퍼 | Playwright 1.44 (Chromium headless) |
-| 언어 | TypeScript 5 + ts-node 10 |
-| 테스트 | vitest 1 |
-| 런타임 | Node.js 20+ |
+| 🕷 스크래퍼 | Playwright 1.44 (Chromium headless) |
+| 🟦 언어 | TypeScript 5 + ts-node 10 |
+| 🧪 테스트 | Vitest 1 |
+| 🟢 런타임 | Node.js 20+ |
+| 🤖 AI | Claude Code (claude.ai/code) |
+| 🍎 플랫폼 | macOS |
 
 ## 🚀 Getting Started
 
