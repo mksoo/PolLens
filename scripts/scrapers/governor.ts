@@ -1,33 +1,33 @@
 // scripts/scrapers/governor.ts
 import { chromium } from 'playwright';
 import type { ScraperConfig } from '../types';
-import { parseRawText } from '../parser';
-import { saveCandidateMd } from '../mdWriter';
-import { extractCandidateRefs, extractAllPagesText } from './base';
+import { saveRawCandidate } from '../mdWriter';
+import { navigateToElectionList, extractCandidateRefs, downloadPdfText, createPage, REGION_CODE } from './base';
 
-/**
- * 경기도지사 후보 공약을 수집한다.
- * ⚠️ listingUrl을 실제 URL로 교체 필요 (exploration/SCRAPER_NOTES.md 참조)
- */
 export async function scrapeGovernor(config: ScraperConfig, dataDir: string): Promise<void> {
-  // ⚠️ 실제 URL 패턴으로 교체 필요
-  const listingUrl = `https://policy.nec.go.kr/candidate/list?electionType=도지사&district=${encodeURIComponent(config.district)}`;
-
   const browser = await chromium.launch({ headless: true });
   try {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    console.log(`  후보자 목록 조회: ${listingUrl}`);
-    const refs = await extractCandidateRefs(page, listingUrl);
+    const page = await createPage(browser);
+    console.log(`  도지사 후보 목록 탐색 중...`);
+    await navigateToElectionList(page, '시·도지사선거', REGION_CODE);
+    const refs = await extractCandidateRefs(page);
     console.log(`  도지사 후보 ${refs.length}명 발견`);
 
     for (const ref of refs) {
       console.log(`  수집 중: 기호${ref.ballotNumber} ${ref.name} (${ref.party})`);
-      const rawText = await extractAllPagesText(page, ref.documentKey);
-      const candidate = parseRawText(rawText, config.electionType, config.region);
-      saveCandidateMd(candidate, dataDir);
-      console.log(`  → 저장 완료: ${candidate.name}`);
+      let rawText = '';
+      try {
+        rawText = await downloadPdfText(ref.pdfUrl);
+      } catch (e) {
+        console.log(`    PDF 추출 실패: ${(e as Error).message.slice(0, 80)}`);
+      }
+      saveRawCandidate({
+        name: ref.name, ballotNumber: ref.ballotNumber, party: ref.party,
+        electionType: config.electionType, region: config.region, district: config.district,
+        pdfUrl: ref.pdfUrl, pbinfoUrl: ref.pbinfoUrl,
+        rawText, collectedAt: new Date().toISOString(),
+      }, dataDir);
+      console.log(`  → 저장 완료: ${ref.name}`);
     }
   } finally {
     await browser.close();

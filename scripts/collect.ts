@@ -13,8 +13,8 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const DONGTAN5_CONFIGS: ScraperConfig[] = [
   { electionType: '도지사',  region: '경기도',  district: '경기도' },
   { electionType: '시장',    region: '화성시',  district: '화성시' },
-  { electionType: '도의원',  region: '경기도',  district: '동탄제1선거구' },
-  { electionType: '시의원',  region: '화성시',  district: '동탄5동' },
+  { electionType: '도의원',  region: '경기도',  district: '화성시제3선거구' },
+  { electionType: '시의원',  region: '화성시',  district: '화성시다선거구' },
   { electionType: '교육감',  region: '경기도',  district: '경기도' },
 ];
 
