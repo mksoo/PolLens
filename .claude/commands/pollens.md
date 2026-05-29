@@ -24,11 +24,13 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 `/Users/mksoo/Documents/dev/tmp/PolLens/data/meta.json` 파일을 읽는다.
 
-- 파일이 없거나 `collectedAt` 값이 현재 시각 기준 24시간 이전이면 → 중단:
+- 파일이 없거나 `collectedAt` 값이 현재 시각 기준 24시간 이전이면 → 다음을 출력한 뒤 `Skill` 도구로 `pollens-collect`를 즉시 실행한다:
 
   ```
-  데이터가 없거나 오래되었습니다. 먼저 /pollens-collect 를 실행해 데이터를 수집하세요.
+  데이터가 없거나 오래되었습니다. 먼저 데이터를 수집합니다...
   ```
+
+  `pollens-collect` 완료 후 Step 2로 진행한다.
 
 - `collectedAt`이 24시간 이내이면 → Step 2로 진행.
 
@@ -54,7 +56,7 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ---
 
-## Step 3: pollens-compare 호출
+## Step 3: pollens-compare 실행
 
 사용자가 선택한 번호를 아래 매핑으로 `electionType`으로 변환한다:
 
@@ -66,7 +68,13 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 5 → 교육감
 ```
 
-`/pollens-compare` 스킬을 호출한다. 위에서 결정한 `electionType`을 대화 컨텍스트로 전달한다.
+다음을 출력한 뒤 `Skill` 도구로 `pollens-compare`를 즉시 실행한다:
+
+```
+[electionType] 후보 공약을 불러옵니다...
+```
+
+`pollens-compare`는 위에서 결정한 `electionType`을 대화 컨텍스트에서 읽어 동작한다.
 
 ---
 
