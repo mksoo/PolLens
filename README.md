@@ -24,9 +24,11 @@
 
 ### Prerequisites
 
-```bash
-node --version   # v20 이상
-```
+| | 항목 | 버전 / 비고 | 확인 방법 |
+|---|---|---|---|
+| 🟢 | Node.js | v20 이상 | `node --version` |
+| 🤖 | Claude Code | [claude.ai/code](https://claude.ai/code) | 슬래시 커맨드 필수 |
+| 🍎 | macOS | 검증된 플랫폼 | — |
 
 ### Installation
 
