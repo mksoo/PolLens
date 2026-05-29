@@ -39,10 +39,6 @@ export function parseDistrictResult(
   };
 }
 
-/**
- * Playwright로 info.nec.go.kr를 탐색해 읍/면/동 기준 선거구를 반환한다.
- * 실제 DOM 구조는 사이트 접속 후 확인 필요. 아래는 예상 구조 기반 구현.
- */
 export async function resolveDistrictByAddress(
   sido: string,
   sigungu: string,
@@ -65,27 +61,42 @@ export async function resolveDistrictByAddress(
     console.log(`  선거구 조회 중: ${sido} ${sigungu} ${emd}`);
     await page.goto(DISTRICT_LOOKUP_URL, { waitUntil: 'networkidle', timeout: 30_000 });
 
-    // 읍면동 검색 입력
-    // 주의: 실제 DOM selector는 사이트 접속 후 확인 필요
+    // 읍면동 입력 후 검색 (버튼은 button[type="button"], fn_submit_vote() 호출)
     await page.waitForSelector('input[type="text"]', { timeout: 10_000 });
     await page.fill('input[type="text"]', emd);
-    await page.click('button[type="submit"], input[type="submit"]');
-    await page.waitForTimeout(1_000);
+    await page.click('button[type="button"]');
 
-    // 결과 테이블에서 행 추출
-    // 주의: 실제 테이블 selector는 사이트 접속 후 확인 필요
-    const rows = await page.$$eval('table tbody tr', (trs) =>
-      trs.map((tr) => {
-        const cells = Array.from(tr.querySelectorAll('td'));
-        return {
-          electionName: cells[0]?.textContent?.trim() ?? '',
-          districtCity: cells[1]?.textContent?.trim() ?? '',
-          districtName: cells[2]?.textContent?.trim() ?? '',
-        };
-      })
+    // popup_search_sg_emd_req.xhtml 로 이동 후 결과 로드 대기
+    await page.waitForURL('**/popup_search_sg_emd_req.xhtml', { timeout: 15_000 });
+    await page.waitForSelector('ul.list li', { timeout: 10_000 });
+
+    // zone_tit > .path > p 순서: [0]=시도, [1]=구/시군, [2]=동
+    const districtCity = await page.$eval(
+      'ul.list li div.zone_tit div.path p:nth-child(2)',
+      (el) => el.textContent?.trim() ?? ''
     );
 
-    const partial = parseDistrictResult(rows, sigungu);
+    // zone_con li(헤더 제외)에서 선거구 정보 추출 — CSS hide여도 DOM에 존재하므로 접근 가능
+    const rows = await page.$$eval(
+      'ul.list li ul.zone_con li:not(.th)',
+      (lis) =>
+        lis.map((li) => {
+          const zone = li.querySelector('div.zone');
+          if (!zone) return { electionName: '', districtCity: '', districtName: '' };
+          const nodes = Array.from(zone.childNodes)
+            .filter((n) => n.nodeType === Node.ELEMENT_NODE)
+            .map((n) => (n as Element).textContent?.trim() ?? '')
+            .filter(Boolean);
+          return {
+            electionName: nodes[0] ?? '',
+            districtCity: '',
+            districtName: nodes[1] ?? '',
+          };
+        })
+    );
+
+    const rowsWithCity = rows.map((r) => ({ ...r, districtCity }));
+    const partial = parseDistrictResult(rowsWithCity, sigungu);
     return { sido, sigungu, regionCode, ...partial };
   } finally {
     await browser.close();

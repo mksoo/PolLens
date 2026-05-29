@@ -63,7 +63,7 @@ Playwright로 선관위 사이트를 탐색합니다. 추가 토큰이 소모됩
 입력 완료 후 아래 명령을 실행한다:
 
 ```bash
-cd /Users/mksoo/Documents/dev/tmp/PolLens && npx ts-node -e "
+cd /Users/mksoo/Documents/dev/tmp/PolLens && npx ts-node --transpile-only -e "
 const { resolveDistrictByAddress } = require('./scripts/resolve-district');
 resolveDistrictByAddress('<sido>', '<sigungu>', '<emd>').then(r => console.log(JSON.stringify(r)));
 "
