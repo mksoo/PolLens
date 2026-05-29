@@ -3,9 +3,10 @@
 import { chromium } from 'playwright';
 import * as os from 'os';
 import * as path from 'path';
-import { createPage, REGION_CODE, downloadPdf } from './scrapers/base';
+import { createPage, downloadPdf } from './scrapers/base';
 
 const LISTING_URL = 'https://policy.nec.go.kr/plc/commiment/initUCACommiment.do?menuId=CNDDT25';
+const REGION_CODE = '4100'; // 경기도
 
 async function main() {
   const browser = await chromium.launch({ headless: true });

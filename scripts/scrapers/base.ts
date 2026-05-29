@@ -7,9 +7,6 @@ import type { CandidateRef } from '../types';
 export const LISTING_URL =
   'https://policy.nec.go.kr/plc/commiment/initUCACommiment.do?menuId=CNDDT25';
 
-/** 경기도 지역 코드 */
-export const REGION_CODE = '4100';
-
 /**
  * 선거 유형 탭 LI 요소의 onclick 코드(sgId) 매핑.
  * 실제 DOM: <li onclick="fnSgIdChange('320260603')">시·도지사선거</li>

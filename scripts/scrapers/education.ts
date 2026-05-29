@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import * as path from 'path';
 import type { ScraperConfig, CandidateMeta } from '../types';
-import { navigateToElectionList, extractCandidateRefs, downloadPdf, createPage, REGION_CODE } from './base';
+import { navigateToElectionList, extractCandidateRefs, downloadPdf, createPage } from './base';
 
 export async function scrapeEducation(config: ScraperConfig, dataDir: string): Promise<CandidateMeta[]> {
   const browser = await chromium.launch({ headless: true });
@@ -10,7 +10,7 @@ export async function scrapeEducation(config: ScraperConfig, dataDir: string): P
   try {
     const page = await createPage(browser);
     console.log(`  교육감 후보 목록 탐색 중...`);
-    await navigateToElectionList(page, '교육감선거', REGION_CODE);
+    await navigateToElectionList(page, '교육감선거', config.regionCode);
     const refs = await extractCandidateRefs(page);
     console.log(`  교육감 후보 ${refs.length}명 발견`);
 
