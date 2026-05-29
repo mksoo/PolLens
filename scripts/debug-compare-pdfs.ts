@@ -1,7 +1,9 @@
 // scripts/debug-compare-pdfs.ts
 // 도지사 후보들의 PDF 링크 타입과 텍스트 앞부분 비교
 import { chromium } from 'playwright';
-import { createPage, REGION_CODE, downloadPdfText } from './scrapers/base';
+import * as os from 'os';
+import * as path from 'path';
+import { createPage, REGION_CODE, downloadPdf } from './scrapers/base';
 
 const LISTING_URL = 'https://policy.nec.go.kr/plc/commiment/initUCACommiment.do?menuId=CNDDT25';
 
@@ -50,12 +52,10 @@ async function main() {
     if (!chosen) { console.log('  링크 없음'); continue; }
 
     try {
-      const text = await downloadPdfText(chosen.href);
-      const has공약순위 = text.includes('공약순위');
+      const tmpPath = path.join(os.tmpdir(), `debug-${Date.now()}.pdf`);
+      await downloadPdf(chosen.href, tmpPath);
       console.log(`  URL 타입: ${chosen.type}`);
-      console.log(`  텍스트 길이: ${text.length}자`);
-      console.log(`  "공약순위" 포함: ${has공약순위}`);
-      console.log(`  텍스트 앞 200자: ${text.slice(0, 200).replace(/\n/g, '↵')}`);
+      console.log(`  다운로드 성공: ${tmpPath}`);
     } catch (e) {
       console.log('  에러:', (e as Error).message.slice(0, 100));
     }
