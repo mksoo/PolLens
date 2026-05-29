@@ -1,11 +1,12 @@
 // scripts/scrapers/education.ts
 import { chromium } from 'playwright';
-import type { ScraperConfig } from '../types';
-import { saveRawCandidate } from '../mdWriter';
-import { navigateToElectionList, extractCandidateRefs, downloadPdfText, createPage, REGION_CODE } from './base';
+import * as path from 'path';
+import type { ScraperConfig, CandidateMeta } from '../types';
+import { navigateToElectionList, extractCandidateRefs, downloadPdf, createPage, REGION_CODE } from './base';
 
-export async function scrapeEducation(config: ScraperConfig, dataDir: string): Promise<void> {
+export async function scrapeEducation(config: ScraperConfig, dataDir: string): Promise<CandidateMeta[]> {
   const browser = await chromium.launch({ headless: true });
+  const candidates: CandidateMeta[] = [];
   try {
     const page = await createPage(browser);
     console.log(`  교육감 후보 목록 탐색 중...`);
@@ -15,23 +16,40 @@ export async function scrapeEducation(config: ScraperConfig, dataDir: string): P
 
     for (const ref of refs) {
       console.log(`  수집 중: 기호${ref.ballotNumber} ${ref.name} (${ref.party})`);
-      let rawText = '';
-      if (ref.pdfUrl) {
-        try {
-          rawText = await downloadPdfText(ref.pdfUrl);
-        } catch (e) {
-          console.log(`    PDF 추출 실패: ${(e as Error).message.slice(0, 80)}`);
-        }
-      }
-      saveRawCandidate({
+      const meta: CandidateMeta = {
         name: ref.name, ballotNumber: ref.ballotNumber, party: ref.party,
         electionType: config.electionType, region: config.region, district: config.district,
         pdfUrl: ref.pdfUrl, pbinfoUrl: ref.pbinfoUrl,
-        rawText, collectedAt: new Date().toISOString(),
-      }, dataDir);
-      console.log(`  → 저장 완료: ${ref.name}`);
+        collectedAt: new Date().toISOString(),
+      };
+
+      if (ref.pdfUrl) {
+        const destPath = path.join(dataDir, config.electionType, config.region, `${ref.name}.pdf`);
+        try {
+          await downloadPdf(ref.pdfUrl, destPath);
+          meta.pdfPath = path.relative(process.cwd(), destPath);
+          console.log(`    공약PDF 저장: ${meta.pdfPath}`);
+        } catch (e) {
+          console.log(`    공약PDF 다운로드 실패: ${(e as Error).message.slice(0, 80)}`);
+        }
+      }
+
+      if (ref.pbinfoUrl) {
+        const destPath = path.join(dataDir, config.electionType, config.region, `${ref.name}_공보.pdf`);
+        try {
+          await downloadPdf(ref.pbinfoUrl, destPath);
+          meta.pbinfoPdfPath = path.relative(process.cwd(), destPath);
+          console.log(`    선거공보PDF 저장: ${meta.pbinfoPdfPath}`);
+        } catch (e) {
+          console.log(`    선거공보PDF 다운로드 실패: ${(e as Error).message.slice(0, 80)}`);
+        }
+      }
+
+      candidates.push(meta);
+      console.log(`  → 완료: ${ref.name}`);
     }
   } finally {
     await browser.close();
   }
+  return candidates;
 }
