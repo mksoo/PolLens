@@ -3,6 +3,11 @@
 `/pollens` 오케스트레이터에서 호출하거나 단독으로 실행한다.
 `electionType`을 입력받아 비교표 하나를 출력하고 종료한다.
 
+**오케스트레이터에서 호출 시** 대화 컨텍스트에 다음 값이 전달되어 있다:
+- `electionType` — 비교할 선거 유형
+- `readingMode` — PDF 읽기 모드 (1 또는 2)
+- `personaContext` — 사용자 페르소나/관심분야 (null이면 Step 4.5 비활성화)
+
 ---
 
 ## 금지 표현 (FORBIDDEN — 절대 사용 금지)

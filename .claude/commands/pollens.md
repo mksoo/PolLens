@@ -27,23 +27,7 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 
 ---
 
-## Step 1: 캐시 확인
-
-`<PROJECT_ROOT>/data/meta.json` 파일을 읽는다.
-
-- 파일이 없거나 `collectedAt` 값이 현재 시각 기준 24시간 이전이면 → 다음을 출력한 뒤 `Skill` 도구로 `pollens-collect`를 즉시 실행한다:
-
-  ```
-  데이터가 없거나 오래되었습니다. 먼저 데이터를 수집합니다...
-  ```
-
-  `pollens-collect` 완료 후 Step 2로 진행한다.
-
-- `collectedAt`이 24시간 이내이면 → Step 2로 진행.
-
----
-
-## Step 1.5: 페르소나 / 관심분야 입력 (선택)
+## Step 0.5: 페르소나 / 관심분야 입력 (선택)
 
 대화 컨텍스트에 `personaContext` 값이 이미 설정되어 있으면 이 단계를 건너뛴다.
 
@@ -64,7 +48,23 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 
 ---
 
-## Step 1.6: 읽기 모드 선택 (세션 시작 시 한 번)
+## Step 1: 캐시 확인
+
+`<PROJECT_ROOT>/data/meta.json` 파일을 읽는다.
+
+- 파일이 없거나 `collectedAt` 값이 현재 시각 기준 24시간 이전이면 → 다음을 출력한 뒤 `Skill` 도구로 `pollens-collect`를 즉시 실행한다:
+
+  ```
+  데이터가 없거나 오래되었습니다. 먼저 데이터를 수집합니다...
+  ```
+
+  `pollens-collect` 완료 후 Step 2로 진행한다.
+
+- `collectedAt`이 24시간 이내이면 → Step 2로 진행.
+
+---
+
+## Step 1.5: 읽기 모드 선택 (세션 시작 시 한 번)
 
 대화 컨텍스트에 `readingMode` 값이 이미 설정되어 있으면 이 단계를 건너뛴다.
 
@@ -79,6 +79,8 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 
 선택한 값을 `readingMode`로 세션 컨텍스트에 기억한다 (1 또는 2).
 응답이 없거나 불명확하면 `readingMode = 1`을 기본값으로 설정한다.
+
+이 시점에서 세션 컨텍스트에는 `personaContext`(Step 0.5에서 설정)와 `readingMode`가 모두 설정되어 있다.
 
 ---
 
@@ -121,7 +123,10 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 [electionType] 후보 공약을 불러옵니다...
 ```
 
-`pollens-compare`는 위에서 결정한 `electionType`과 `readingMode`를 대화 컨텍스트에서 읽어 동작한다.
+`pollens-compare`는 대화 컨텍스트에서 다음 세 값을 읽어 동작한다:
+- `electionType` — 방금 사용자가 선택한 선거 유형
+- `readingMode` — Step 1.5에서 설정된 읽기 모드
+- `personaContext` — Step 0.5에서 설정된 페르소나 (null이면 비활성화)
 
 ---
 
