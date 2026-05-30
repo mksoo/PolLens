@@ -14,6 +14,9 @@ npx ts-node scripts/collect.ts --type 시장   # 도지사|시장|도의원|시�
 # 임의 선거구 수집 (JSON 배열)
 npx ts-node scripts/collect.ts --config-json '[{"electionType":"시장","regionCode":"4100","region":"화성시","district":"화성시","cityText":"화성시"}]'
 
+# 선거구 탐색 스크립트 (info.nec.go.kr 팝업 직접 실행)
+npm run explore
+
 # 테스트
 npm test                           # vitest run (one-shot)
 npm run test:watch                 # vitest watch
@@ -55,6 +58,18 @@ collect.ts ──▶ scraper/*.ts ──▶ base.ts (Playwright) ──▶ polic
 
 **선관위 DOM 특이사항** — `policy.nec.go.kr`의 선거 유형 탭은 `<button>`이 아닌 `<li onclick="fnSgIdChange('...')">` 구조다. `fnSgIdChange()`는 동기 jQuery AJAX를 사용하고 성공 콜백에서 `parent._FN_INDEX_RESIZE()`를 호출하는데 iframe 없이 직접 로드 시 이 함수가 없어 오류가 발생한다. `base.ts`에서 `page.evaluate()`로 호출 전 스텁을 주입한다. 시·군 및 선거구 팝업은 `<label for="...">` 클릭으로 선택한다 (`<input type="button">` 아님).
 
+**선거별 sgId 코드** — `base.ts`의 `ELECTION_SG_IDS`는 선거 유형 탭 텍스트 → jQuery 호출 인자를 매핑한다. 2026-06-03 지방선거 기준 값이며, 다음 선거에서는 선관위 페이지 DOM을 확인해 갱신해야 한다:
+
+| 탭 텍스트 | sgId |
+|---|---|
+| 시·도지사선거 | `320260603` |
+| 구·시·군의 장선거 | `420260603` |
+| 시·도의회의원선거 | `520260603` |
+| 구·시·군의회의원선거 | `620260603` |
+| 교육감선거 | `1120260603` |
+
+`LISTING_URL`(`base.ts`)과 `DISTRICT_LOOKUP_URL`(`resolve-district.ts`) 모두 `20260603` 선거 ID를 포함한다. 다음 선거 사용 시 두 URL을 함께 교체해야 한다.
+
 ### 파일 구조
 
 - `scripts/types.ts` — 공통 타입 (`ElectionType`, `ScraperConfig`, `CandidateRef`, `CandidateMeta`, `CacheMeta`)
@@ -66,9 +81,12 @@ collect.ts ──▶ scraper/*.ts ──▶ base.ts (Playwright) ──▶ polic
 
 ### Claude Code 스킬
 
-`.claude/commands/`에 프로젝트 스코프 커맨드 두 개가 있다:
+`.claude/commands/`에 프로젝트 스코프 커맨드 세 개가 있다:
 
+- `/pollens` — 오케스트레이터. 캐시 확인 → 선거 목록 안내 → `pollens-compare` 호출 루프. WebSearch로 후보 관련 기사·SNS 추가 탐색도 담당.
 - `/pollens-collect` — 선거구 입력 방식 선택 후 수집 실행. Path A: 사용자가 NEC 사이트 결과를 직접 붙여넣음. Path B: 시도/시군구/읍면동을 입력하면 `resolve-district.ts`가 Playwright로 선거구를 자동 조회.
-- `/pollens` — 수집된 PDF 파일을 읽고 Claude가 공약을 직접 해석해 비교표 출력
+- `/pollens-compare` — `electionType`을 받아 비교표 하나를 출력하고 종료. `/pollens`에서 `Skill` 도구로 호출하거나 단독으로 실행 가능.
 
-**판단 금지**: `/pollens` 스킬은 "1위", "추천", "승자", "점수" 등 평가 표현을 절대 사용하지 않는다. 기호번호 오름차순 정렬만 허용.
+**판단 금지**: 세 스킬 모두 "1위", "추천", "승자", "점수" 등 평가 표현을 절대 사용하지 않는다. 기호번호 오름차순 정렬만 허용.
+
+**절대 경로 주의**: 스킬 `.md` 파일 내 경로(`/Users/mksoo/Documents/dev/tmp/PolLens/...`)가 하드코딩되어 있다. 프로젝트 디렉토리를 이동하면 세 파일 모두 경로를 업데이트해야 한다.
