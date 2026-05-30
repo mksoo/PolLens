@@ -2,84 +2,62 @@
 
 > 2026-06-03 지방선거 후보자 공약을 중앙선거관리위원회에서 자동 수집하고, Claude가 PDF를 직접 읽어 비교표를 만들어주는 Claude Code 스킬
 
-## ✨ Features
+읍·면·동 주소를 입력하면 Playwright가 선관위 사이트에서 선거구를 찾고 후보자별 공약 PDF를 다운로드한다. Claude Code가 PDF를 직접 읽어 비교표를 만든다. 추천이나 순위 없이 기호번호 오름차순 사실 정보만 제시한다.
 
-- **선거구 자동 조회** — 읍·면·동 주소 입력만으로 Playwright가 선관위 사이트에서 선거구를 자동 탐색 (Path B), 또는 사이트 결과를 직접 붙여넣어도 됨 (Path A)
-- **공약 PDF 자동 수집** — policy.nec.go.kr에서 5대공약(텍스트) PDF와 선거공보(이미지) PDF를 자동 다운로드
-- **AI 직독 파싱** — pdf-parse 없이 Claude Code의 Read 도구가 PDF를 네이티브로 읽어 공약 해석
-- **판단 없는 비교** — 기호번호 오름차순 정렬, 사실 정보만 제시 (추천·순위·점수 없음)
+## 시작하기
 
-## 🛠 Tech Stack
+### 1. 필요한 것
 
-| 분류 | 기술 |
-|------|------|
-| 🕷 스크래퍼 | Playwright 1.44 (Chromium headless) |
-| 🟦 언어 | TypeScript 5 + ts-node 10 |
-| 🧪 테스트 | Vitest 1 |
-| 🟢 런타임 | Node.js 20+ |
-| 🤖 AI | Claude Code (claude.ai/code) |
-| 🍎 플랫폼 | macOS |
+- Node.js v20 이상 (`node --version`으로 확인)
+- [Claude Code](https://claude.ai/code) — 슬래시 커맨드와 PDF 직독 기능은 Claude Code에서만 동작한다
+- macOS (검증된 플랫폼)
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-| | 항목 | 버전 / 비고 | 확인 방법 |
-|---|---|---|---|
-| 🟢 | Node.js | v20 이상 | `node --version` |
-| 🤖 | Claude Code | [claude.ai/code](https://claude.ai/code) | 슬래시 커맨드 필수 |
-| 🍎 | macOS | 검증된 플랫폼 | — |
-
-### Installation
+### 2. 설치
 
 ```bash
 npm install
 npx playwright install chromium
 ```
 
-### 데이터 수집
+### 3. 실행
+
+이 프로젝트 디렉토리를 Claude Code로 열고 `/pollens`를 실행한다.
+
+수집이 필요하면 자동으로 처리한다. 선거구를 입력하는 방법은 두 가지다.
+
+- **Path A**: 선관위 사이트(info.nec.go.kr)에서 본인 선거구를 찾아 결과를 붙여넣는다.
+- **Path B**: 시도·시군구·읍면동을 입력하면 Playwright가 선거구를 자동으로 조회한다.
+
+수집이 끝나면 선거 목록이 나온다. 보고 싶은 선거를 선택하면 후보자별 공약 비교표가 출력된다.
+
+캐시는 24시간 유효하다. 데이터를 수동으로 갱신하려면 `/pollens-collect`를 직접 실행한다.
+
+## 개발
 
 ```bash
-# 기본 설정으로 수집
-npx ts-node scripts/collect.ts
+npm test                      # 테스트 실행 (one-shot)
+npm run test:watch            # 워치 모드
+npx tsc --noEmit              # 타입 체크
 
-# 특정 선거만
-npx ts-node scripts/collect.ts --type 시장
+# 특정 선거 유형만 수집
+npx ts-node scripts/collect.ts --type 시장   # 도지사|시장|도의원|시의원|교육감
 
-# 임의 선거구 (JSON 배열)
+# 임의 선거구 수집
 npx ts-node scripts/collect.ts --config-json '[{"electionType":"시장","regionCode":"4100","region":"화성시","district":"화성시","cityText":"화성시"}]'
 ```
 
-### 테스트
+## Tech Stack
 
-```bash
-npm test
-```
+| 분류 | 기술 |
+|------|------|
+| 스크래퍼 | Playwright 1.44 (Chromium headless) |
+| 언어 | TypeScript 5 + ts-node 10 |
+| 테스트 | Vitest 1 |
+| 런타임 | Node.js 20+ |
+| AI | Claude Code (claude.ai/code) |
+| 플랫폼 | macOS |
 
-## 💬 Claude Code 스킬 사용법
-
-이 프로젝트 디렉토리에서 Claude Code를 열면 두 슬래시 커맨드를 바로 사용할 수 있다.
-
-| 커맨드 | 역할 |
-|--------|------|
-| `/pollens-collect` | 선관위에서 최신 공약 데이터 수집 |
-| `/pollens` | 수집된 데이터 기반 후보 공약 비교 |
-
-### 사용 흐름
-
-```
-/pollens-collect
-  → Path A: NEC 사이트 결과 붙여넣기
-  → Path B: 시도 / 시군구 / 읍면동 입력 → Playwright 자동 선거구 조회
-  → --config-json 으로 collect.ts 실행 → data/ 에 PDF 저장
-
-/pollens
-  → 캐시 확인 (24시간 이상 지났으면 /pollens-collect 안내)
-  → 선거 목록 안내 → 사용자 선택
-  → 후보자 PDF 직독 → 공약 비교표 출력 (기호번호 오름차순)
-```
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 PolLens/
