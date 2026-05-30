@@ -43,7 +43,7 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 
 ---
 
-## Step 1.5: 읽기 모드 선택 (세션 시작 시 한 번)
+## Step 1.6: 읽기 모드 선택 (세션 시작 시 한 번)
 
 대화 컨텍스트에 `readingMode` 값이 이미 설정되어 있으면 이 단계를 건너뛴다.
 
