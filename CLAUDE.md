@@ -89,4 +89,4 @@ collect.ts ──▶ scraper/*.ts ──▶ base.ts (Playwright) ──▶ polic
 
 **판단 금지**: 세 스킬 모두 "1위", "추천", "승자", "점수" 등 평가 표현을 절대 사용하지 않는다. 기호번호 오름차순 정렬만 허용.
 
-**절대 경로 주의**: 스킬 `.md` 파일 내 경로(`/Users/mksoo/Documents/dev/tmp/PolLens/...`)가 하드코딩되어 있다. 프로젝트 디렉토리를 이동하면 세 파일 모두 경로를 업데이트해야 한다.
+**경로 처리**: 스킬 파일은 실행 시 `git rev-parse --show-toplevel` 로 PROJECT_ROOT를 동적으로 구해 절대 경로를 구성한다. 절대 경로 하드코딩 없음.

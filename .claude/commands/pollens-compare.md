@@ -21,6 +21,13 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ---
 
+## Step 0: 프로젝트 루트 확인
+
+Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻는다.
+이후 모든 파일 경로는 `<PROJECT_ROOT>/...` 형식으로 구성한다.
+
+---
+
 ## Step 1: electionType 확인
 
 대화 컨텍스트에서 `electionType` 값을 확인한다 (도지사|시장|도의원|시의원|교육감).
@@ -40,7 +47,7 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ## Step 2: 후보 목록 추출
 
-`/Users/mksoo/Documents/dev/tmp/PolLens/data/meta.json` 파일을 읽는다.
+`<PROJECT_ROOT>/data/meta.json` 파일을 읽는다.
 
 `candidates` 배열에서 해당 `electionType` 후보를 모두 추출한다.
 
@@ -72,13 +79,13 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 ### Step 3b: 후보별 PDF 읽기
 
 **1번(5대공약만) 선택/설정 시** — 각 후보에 대해:
-- `pdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다.
-- `pdfPath`가 없고 `pbinfoPdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pbinfoPdfPath>` 경로의 PDF를 Read 도구로 읽는다 (fallback).
+- `pdfPath`가 있으면: `<PROJECT_ROOT>/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다.
+- `pdfPath`가 없고 `pbinfoPdfPath`가 있으면: `<PROJECT_ROOT>/<pbinfoPdfPath>` 경로의 PDF를 Read 도구로 읽는다 (fallback).
 - 둘 다 없으면: 공약 셀에 `(공약 파일 없음)` 표시.
 
 **2번(공보 포함) 선택/설정 시** — 각 후보에 대해:
-- `pdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다.
-- `pbinfoPdfPath`가 있으면: `/Users/mksoo/Documents/dev/tmp/PolLens/<pbinfoPdfPath>` 경로의 공보 PDF를 Read 도구로 읽는다. 10페이지 이하이면 한 번에 읽고, 초과이면 20페이지씩 분할해 전체를 읽는다. 읽기에 실패하면 공약 셀에 `(공보 읽기 실패)` 표시.
+- `pdfPath`가 있으면: `<PROJECT_ROOT>/<pdfPath>` 경로의 PDF를 Read 도구로 읽는다.
+- `pbinfoPdfPath`가 있으면: `<PROJECT_ROOT>/<pbinfoPdfPath>` 경로의 공보 PDF를 Read 도구로 읽는다. 10페이지 이하이면 한 번에 읽고, 초과이면 20페이지씩 분할해 전체를 읽는다. 읽기에 실패하면 공약 셀에 `(공보 읽기 실패)` 표시.
 - 아무 PDF도 없으면: 공약 셀에 `(공약 파일 없음)` 표시.
 
 **QR코드 전용 공약 처리:**

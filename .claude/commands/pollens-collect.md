@@ -1,7 +1,7 @@
 # /pollens-collect — PolLens 데이터 수집
 
 2026-06-03 지방선거 후보 공약 데이터를 중앙선거관리위원회(policy.nec.go.kr)에서 수집하여
-`/Users/mksoo/Documents/dev/tmp/PolLens/data/` 에 저장한다.
+`data/` 에 저장한다.
 
 ---
 
@@ -36,7 +36,7 @@ B) 자동 탐색
 파싱 후 아래 명령을 실행한다 (JSON은 실제 파싱 결과로 채운다):
 
 ```bash
-cd /Users/mksoo/Documents/dev/tmp/PolLens && npx ts-node scripts/collect.ts --config-json '[
+npx ts-node scripts/collect.ts --config-json '[
   {"electionType":"도지사","regionCode":"<regionCode>","region":"<sido>","district":"<sido>"},
   {"electionType":"시장","regionCode":"<regionCode>","region":"<sigungu>","district":"<sigungu>","cityText":"<sigungu>"},
   {"electionType":"도의원","regionCode":"<regionCode>","region":"<sido>","district":"<provincialDistrict>","cityText":"<districtCityText>","districtText":"<provincialDistrict>"},
@@ -77,7 +77,7 @@ Playwright로 선관위 사이트를 탐색합니다. 추가 토큰이 소모됩
 추출된 시도/시군구/읍면동으로 아래 명령을 실행한다:
 
 ```bash
-cd /Users/mksoo/Documents/dev/tmp/PolLens && npx ts-node --transpile-only -e "
+npx ts-node --transpile-only -e "
 const { resolveDistrictByAddress } = require('./scripts/resolve-district');
 resolveDistrictByAddress('<sido>', '<sigungu>', '<emd>').then(r => console.log(JSON.stringify(r)));
 "
@@ -93,7 +93,7 @@ resolveDistrictByAddress('<sido>', '<sigungu>', '<emd>').then(r => console.log(J
 
 ```
 ✅ 수집 완료!
-저장 위치: /Users/mksoo/Documents/dev/tmp/PolLens/data/
+저장 위치: data/
 
 후보 공약을 분석하려면 /pollens 스킬을 실행하세요.
 ```

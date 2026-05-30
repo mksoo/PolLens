@@ -20,9 +20,16 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ---
 
+## Step 0: 프로젝트 루트 확인
+
+Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻는다.
+이후 모든 파일 경로는 `<PROJECT_ROOT>/...` 형식으로 구성한다.
+
+---
+
 ## Step 1: 캐시 확인
 
-`/Users/mksoo/Documents/dev/tmp/PolLens/data/meta.json` 파일을 읽는다.
+`<PROJECT_ROOT>/data/meta.json` 파일을 읽는다.
 
 - 파일이 없거나 `collectedAt` 값이 현재 시각 기준 24시간 이전이면 → 다음을 출력한 뒤 `Skill` 도구로 `pollens-collect`를 즉시 실행한다:
 
@@ -56,7 +63,7 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ## Step 2: 선거 목록 안내
 
-`/Users/mksoo/Documents/dev/tmp/PolLens/data/meta.json`의 `elections` 배열을 읽는다.
+`<PROJECT_ROOT>/data/meta.json`의 `elections` 배열을 읽는다.
 
 아래 순서·레이블 표에서 `elections` 배열에 포함된 항목만 1부터 순서대로 번호를 매겨 출력한다:
 
@@ -107,7 +114,7 @@ AI는 정보만 제공한다. 판단·추천·순위는 절대 표시하지 않�
 
 ### 4a. 다른 선거를 선택한 경우
 
-`/Users/mksoo/Documents/dev/tmp/PolLens/data/meta.json`의 `elections` 배열을 다시 읽어, Step 2와 동일한 형식으로 선거 목록을 출력한다:
+`<PROJECT_ROOT>/data/meta.json`의 `elections` 배열을 다시 읽어, Step 2와 동일한 형식으로 선거 목록을 출력한다:
 
 ```
 경기도 화성시 동탄5동 기준으로 2026-06-03에 다음 선거가 예정되어 있습니다:
