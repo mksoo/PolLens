@@ -41,7 +41,9 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 
 응답 처리:
 - **자유 텍스트 입력** → 그대로 `personaContext`에 저장한다.
-- **URL 입력** → `WebFetch` 도구로 내용을 가져와 핵심 관심분야만 요약해 `personaContext`에 저장한다.
+- **URL 입력** → URL 도메인을 판별한 뒤 내용을 가져와 핵심 관심분야만 요약해 `personaContext`에 저장한다:
+  - `notion.so` 또는 `notion.site` 도메인이면 → `mcp__claude_ai_Notion__notion-fetch` 도구를 사용한다.
+  - 그 외 URL → `WebFetch` 도구를 사용한다.
 - **빈 입력 (Enter)** → `personaContext = null`로 설정한다. 이 세션에서 페르소나 관련 기능은 모두 비활성화된다.
 
 `personaContext`는 세션 전체에 유지된다 (세션 내 재질문 없음).
