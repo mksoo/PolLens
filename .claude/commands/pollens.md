@@ -99,7 +99,7 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 출력 형식:
 
 ```
-경기도 화성시 동탄5동 기준으로 2026-06-03에 다음 선거가 예정되어 있습니다:
+수집된 데이터 기준으로 2026-06-03에 다음 선거가 예정되어 있습니다:
 
 [번호]. [electionType] — [지역 레이블]
 ...
@@ -138,7 +138,7 @@ Bash 도구로 `git rev-parse --show-toplevel` 을 실행해 PROJECT_ROOT를 얻
 `<PROJECT_ROOT>/data/meta.json`의 `elections` 배열을 다시 읽어, Step 2와 동일한 형식으로 선거 목록을 출력한다:
 
 ```
-경기도 화성시 동탄5동 기준으로 2026-06-03에 다음 선거가 예정되어 있습니다:
+수집된 데이터 기준으로 2026-06-03에 다음 선거가 예정되어 있습니다:
 
 [번호]. [electionType] — [지역 레이블]
 ...
